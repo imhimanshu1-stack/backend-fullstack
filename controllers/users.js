@@ -147,3 +147,15 @@ exports.addToCart = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+exports.viewAddToCart = async (req, res) => {
+  try {
+    const userId = req.user;
+    const cart = await db
+      .collection("carts")
+      .findOne({ userId: new ObjectId(userId) });
+    return res.status(200).json({ Data: cart });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
