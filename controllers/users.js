@@ -58,3 +58,22 @@ exports.login = async (req, res) => {
     return res.status(400).json({ message: error.message });
   }
 };
+
+exports.forgetPassword = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ message: "feilds are not provided" });
+    }
+    const user = await db.collection("users").findOne({ email });
+    await db
+      .collection("users")
+      .updateOne(
+        { userId: new ObjectId(user._id) },
+        { $set: { password: await bcrypt.hash(password, 10) } }
+      );
+    return res.status(200).json({ message: "password changed sucessfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
