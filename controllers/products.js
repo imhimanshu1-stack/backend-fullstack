@@ -40,3 +40,37 @@ exports.findAll = async (req, res) => {
     res.status(500).json({ message: "Internal server error." });
   }
 };
+
+exports.createOrder = async (req, res) => {
+  try {
+    const { name, phone } = req.body;
+
+    const userId = req.user;
+    const user = await db
+      .collection("users")
+      .findOne({ _id: new ObjectId(userId) });
+
+    const cart = await db
+      .collection("carts")
+      .findOne({ userId: new ObjectId(userId) });
+    if (!cart) {
+      return res.status(500).json({ message: "cart is empty" });
+    }
+    if (!cart.items[0]) {
+      return res.status(500).json({ message: "cart is empty" });
+    }
+    await db.collection("orders").insertOne({
+      name: name,
+      phone: phone,
+      items: cart.items,
+      userId: new ObjectId(userId),
+      email: user.email,
+    });
+    await db
+      .collection("carts")
+      .findOneAndDelete({ userId: new ObjectId(userId) });
+    return res.status(200).json({ message: "order place succesfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
