@@ -9,7 +9,7 @@ const products = require("./routes/product");
 const path = require("path");
 const cors = require("cors");
 const dbName = "ecom";
-const port = 3300;
+const port = process.env.PORT || 3000;
 app.use(
   cors({
     origin: "*",
