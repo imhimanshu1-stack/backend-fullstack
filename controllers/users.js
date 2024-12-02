@@ -77,3 +77,73 @@ exports.forgetPassword = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+exports.addToCart = async (req, res) => {
+  try {
+    const { productId, quantity } = req.body;
+    const userId = req.user;
+    if (!productId || !quantity) {
+      return res
+        .status(400)
+        .json({ message: "User ID, product ID, and quantity are required." });
+    }
+    const userCart = await db
+      .collection("carts")
+      .findOne({ userId: new ObjectId(userId) });
+    const product = await db
+      .collection("products")
+      .findOne({ _id: new ObjectId(productId) });
+
+    if (product.stock <= 0) {
+      return res
+        .status(200)
+        .json({ message: "there is not stock for this product" });
+    }
+    if (userCart) {
+      const existingItemIndex = userCart.items.findIndex(
+        (item) => item.productId === productId
+      );
+
+      await db
+        .collection("products")
+        .updateOne(
+          { _id: new ObjectId(productId) },
+          { $set: { stock: product.stock - parseFloat(quantity) } }
+        );
+      if (existingItemIndex > -1) {
+        userCart.items[existingItemIndex].quantity += quantity;
+      } else {
+        userCart.items.push({
+          userId: userId,
+          productId,
+          name: product.name,
+          price: product.price,
+          quantity,
+        });
+      }
+      await db
+        .collection("carts")
+        .updateOne(
+          { userId: new ObjectId(userId) },
+          { $set: { items: userCart.items } }
+        );
+    } else {
+      const newCart = {
+        userId: new ObjectId(userId),
+        items: [
+          {
+            productId,
+            name: product.name,
+            price: product.price,
+            quantity,
+          },
+        ],
+      };
+      console.log(newCart);
+      await db.collection("carts").insertOne(newCart);
+    }
+    return res.status(200).json({ message: "product added to cart" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
