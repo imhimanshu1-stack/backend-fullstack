@@ -2,6 +2,7 @@ const {
   createProduct,
   findAll,
   createOrder,
+  viewOrder,
 } = require("../controllers/products");
 const multer = require("multer");
 const upload = multer({
@@ -24,7 +25,7 @@ router.post(
   authUser,
   createProduct
 );
-
 router.get("/fetch-all-products", authUser, findAll);
 router.post("/create-order", authUser, createOrder);
+router.get("/view-order", authUser, viewOrder);
 module.exports = router;

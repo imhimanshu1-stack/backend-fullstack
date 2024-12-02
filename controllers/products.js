@@ -74,3 +74,16 @@ exports.createOrder = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+exports.viewOrder = async (req, res) => {
+  try {
+    const userId = req.user;
+    const orders = await db
+      .collection("orders")
+      .find({ userId: new ObjectId(userId) })
+      .toArray();
+    return res.status(200).json({ Data: orders });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
