@@ -2,7 +2,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { MongoClient, ObjectId } = require("mongodb");
 
-const uri = "mongodb://localhost:27017";
+const uri =
+  "mongodb+srv://himanshu:4mkq9kPh6glSgmXp@cluster0b.inbjg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0bmodobdb";
 
 const dbName = "ecom";
 
@@ -176,16 +177,14 @@ exports.removeItemFromCart = async (req, res) => {
         const product = await db
           .collection("products")
           .findOne({ _id: new ObjectId(productId) });
-        await db
-          .collection("products")
-          .updateOne(
-            { _id: new ObjectId(productId) },
-            {
-              $set: {
-                stock: product.stock + userCart.items[productIndex].quantity,
-              },
-            }
-          );
+        await db.collection("products").updateOne(
+          { _id: new ObjectId(productId) },
+          {
+            $set: {
+              stock: product.stock + userCart.items[productIndex].quantity,
+            },
+          }
+        );
         userCart.items.splice(productIndex, 1);
 
         await db
