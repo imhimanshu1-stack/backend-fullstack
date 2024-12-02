@@ -159,3 +159,52 @@ exports.viewAddToCart = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+exports.removeItemFromCart = async (req, res) => {
+  try {
+    const userId = req.user;
+    const { productId } = req.body;
+    const userCart = await db
+      .collection("carts")
+      .findOne({ userId: new ObjectId(userId) });
+    if (userCart) {
+      const productIndex = userCart.items.findIndex(
+        (item) => item.productId === productId
+      );
+      if (productIndex !== -1) {
+        console.log(userCart.items);
+        const product = await db
+          .collection("products")
+          .findOne({ _id: new ObjectId(productId) });
+        await db
+          .collection("products")
+          .updateOne(
+            { _id: new ObjectId(productId) },
+            {
+              $set: {
+                stock: product.stock + userCart.items[productIndex].quantity,
+              },
+            }
+          );
+        userCart.items.splice(productIndex, 1);
+
+        await db
+          .collection("carts")
+          .updateOne(
+            { userId: new ObjectId(userId) },
+            { $set: { items: userCart.items } }
+          );
+        return res
+          .status(201)
+          .json({ message: "updated the cart sucessfully" });
+      }
+      return res
+        .status(404)
+        .json({ message: "no cart assosiated with this id" });
+    } else {
+      console.log("Product not found in the cart");
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
