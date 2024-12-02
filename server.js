@@ -1,13 +1,15 @@
 const express = require("express");
 const { MongoClient } = require("mongodb");
 const app = express();
-const uri = "mongodb://localhost:27017";
+const uri =
+  "mongodb+srv://himanshu:4mkq9kPh6glSgmXp@cluster0b.inbjg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0bmodobdb";
 require("dotenv").config({ path: "./config/config.env" });
 const users = require("./routes/user");
 const products = require("./routes/product");
 const path = require("path");
 const cors = require("cors");
 const dbName = "ecom";
+const port = 3300;
 app.use(
   cors({
     origin: "*",
@@ -15,6 +17,8 @@ app.use(
     credentials: true,
   })
 );
+app.get("/", (req, res) => res.send("Hello World!"));
+
 app.use(express.json({ extended: false }));
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -37,6 +41,6 @@ async function connectToDatabase() {
 
 connectToDatabase();
 
-app.listen(3300, () => {
-  console.log("server is running on port 3300");
+app.listen(port, () => {
+  console.log(`App running on http://localhost:${port}`);
 });
