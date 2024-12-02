@@ -1,9 +1,4 @@
-const {
-  createProduct,
-  findAll,
-  createOrder,
-  viewOrder,
-} = require("../controllers/products");
+const { createProduct, findAll } = require("../controllers/products");
 const multer = require("multer");
 const upload = multer({
   storage: multer.diskStorage({
@@ -25,5 +20,7 @@ router.post(
   authUser,
   createProduct
 );
+
+router.get("/fetch-all-products", authUser, findAll);
 
 module.exports = router;

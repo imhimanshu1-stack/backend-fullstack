@@ -29,3 +29,14 @@ exports.createProduct = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+exports.findAll = async (req, res) => {
+  try {
+    const products = await db.collection("products").find({}).toArray();
+
+    res.status(200).json({ products });
+  } catch (err) {
+    console.error("Error listing products:", err);
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
